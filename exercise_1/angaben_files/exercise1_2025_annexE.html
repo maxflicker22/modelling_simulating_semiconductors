@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>main_densityVsTemperature_lean</title>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] },
+  TeX: { equationNumbers: { autoNumber: 'all' } }
+});
+</script>
+<script type="text/javascript" async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+
+<style>
+body > * {
+  max-width: 42em;
+}
+body {
+  font-family: "Roboto Condensed", sans-serif;
+  padding-left: 7.5em;
+  padding-right: 7.5em;
+}
+pre, code {
+  max-width: 50em;
+  font-family: monospace;
+}
+pre.oct-code {
+  border: 1px solid Grey;
+  padding: 5px;
+}
+pre.oct-code-output {
+  margin-left: 2em;
+}
+span.comment {
+  color: ForestGreen;
+}
+span.keyword {
+  color: Blue;
+}
+span.string {
+  color: DarkOrchid;
+}
+footer {
+  margin-top: 2em;
+  font-size: 80%;
+}
+a, a:visited {
+  color: Blue;
+}
+h2 {
+  font-family: "Roboto Condensed", serif;
+  margin-top: 1.5em;
+}
+h2 a, h2 a:visited {
+  color: Black;
+}
+</style>
+
+</head>
+<body>
+<h1>main_densityVsTemperature_lean</h1>
+
+
+<pre class="oct-code"><span class="comment">% -----------------------------------------------------------------------</span>
+<span class="comment">%  determination of Fermi levels and charge carrier densities</span>
+<span class="comment">%  exploiting the charge neutrality condition</span>
+<span class="comment">% -----------------------------------------------------------------------</span>
+<span class="comment">%</span>
+<span class="comment">% hints for usage</span>
+<span class="comment">%</span>
+<span class="comment">% + all spatial quantities are given in SI</span>
+<span class="comment">% + temperatures are given in K</span>
+<span class="comment">% + all energies are given in eV</span>
+
+clear figures
+close all
+clear all
+
+<span class="comment">%-------------------------------------------------------------------------</span>
+<span class="comment">%--- parameter section ---------------------------------------------------</span>
+<span class="comment">%-------------------------------------------------------------------------</span>
+<span class="comment">%</span>
+k_eV = 1.3806504E-23 / 1.602176487E-19; <span class="comment">% Boltzmann constant in eV/K</span>
+
+<span class="comment">% external conditions</span>
+T = 300;  <span class="comment">% in K</span>
+
+<span class="comment">% technical parameters</span>
+<span class="comment">% number of intervals in DOS and energy</span>
+resolution = 1500;
+
+<span class="comment">% threshold and maximal number of iterations for root finding</span>
+tolerance = 1d-4;
+max_RF_iter = 35;
+
+<span class="comment">% script control</span>
+plotlog = true;
+SetPlotProperties() ;
+<span class="comment">%-------------------------------------------------------------------------</span>
+<span class="comment">%--- begin script --------------------------------------------------------</span>
+<span class="comment">%-------------------------------------------------------------------------</span>
+
+
+<span class="comment">% (1) Initialize vectors storing variations</span>
+
+<span class="comment">% DOPING</span>
+<span class="comment">% ... doping type, can be either 'donor' or 'acceptor'</span>
+doping_type = <span class="string">'donor'</span>;
+<span class="comment">% ... doping density</span>
+dopant_density = 1e21;    <span class="comment">% in SI, m^-3</span>
+<span class="comment">% ... energy offset to band</span>
+<span class="comment">% ... n-doping: requires donors with small offset to conduction band</span>
+<span class="comment">% ... p-doping: requires acceptors with small offset to valence band</span>
+E_doffset = 0.2;
+
+
+<span class="comment">% traps</span>
+<span class="comment">% ... there are no traps in this problem</span>
+
+<span class="comment">% temperature</span>
+<span class="comment">% temperature 10 .. 800 K</span>
+temperature = linspace(0.6,800,101); <span class="comment">% vector with temperatures in K</span>
+
+<span class="comment">% Remember that we have to step (=loop) through the values of a quantity</span>
+<span class="comment">% in this example: loop through ascending values of temperatures</span>
+<span class="comment">% --&gt; we define NOW this array that is going to hold the values we would like</span>
+<span class="comment">%     to step through</span>
+<span class="comment">% for other tasks, you can readily use any other quantity to loop through</span>
+reference_array = temperature;
+
+<span class="comment">% this variable stores the shape of the array to be looped through</span>
+<span class="comment">% all other properties should be stored in arrays with the same shape</span>
+array_shape = size(reference_array);
+
+<span class="comment">% provide vectors to store DENSITIES ("concentrations"), initially put zeros everywhere</span>
+<span class="comment">% vector will store electron density when doping is present</span>
+n = zeros(array_shape);
+<span class="comment">% vector will store electron density for intrinsic semiconductor</span>
+n_i = zeros(array_shape);
+<span class="comment">% vector storing density of ionized dopants</span>
+Ndop_ionized = zeros(array_shape);
+
+<span class="comment">% CHEMICAL POTENTIAL</span>
+<span class="comment">% this vector will hold the chemical potential when doping is present</span>
+chemical_potential = zeros(array_shape);
+<span class="comment">% this vector will hold the chemical potential for intrinsic semiconductor</span>
+chemical_potential_i = zeros(array_shape);
+
+<span class="comment">%-------------------------------------------------------------------------</span>
+<span class="comment">% (2a) Initialize energy interval, DOS, and occupation vector</span>
+<span class="comment">%      -&gt; available as column vectors</span>
+<span class="comment">%-------------------------------------------------------------------------</span>
+
+<span class="comment">% choose semiconductor (via element symbol or via self-defined label)</span>
+semicond_label = <span class="string">'Si'</span>;
+
+[E_C, E_V, m_n_eff, m_p_eff] = AssignSemiconductor(semicond_label);
+
+<span class="keyword">switch</span> (doping_type)
+  <span class="keyword">case</span> <span class="string">'donor'</span>
+    E_dopant = E_C - E_doffset;
+    dopant_label = <span class="string">'N_D'</span>;
+    dopant_ion = <span class="string">'^+'</span>;
+    dopant_marker = <span class="string">'N'</span>;
+<span class="keyword">case</span> <span class="string">'acceptor'</span>
+    E_dopant = E_V + E_doffset;
+    dopant_label = <span class="string">'N_A'</span>;
+    dopant_ion = <span class="string">'^-'</span>;
+    dopant_marker = <span class="string">'P'</span>;
+<span class="keyword">endswitch</span>
+
+disp(E_dopant);
+
+<span class="comment">###############################################################################</span>
+
+<span class="comment">#      let us build the density of states</span>
+<span class="comment">#     --------------------------------------------------------------------</span>
+<span class="comment">#     (a) define the boundaries of the considered energy interval E_min, E_max</span>
+<span class="comment">#     (b) initialize the DOS_Admin container in which the nature of the DOS will be stored</span>
+<span class="comment">#     (c) add DOS of conduction band</span>
+<span class="comment">#     (d) add DOS of valence band</span>
+<span class="comment">#     (e) add DOS of dopant level</span>
+<span class="comment">#</span>
+
+<span class="comment">% build DOS together with considered energy interval and occupation  of DOS</span>
+<span class="comment">% size of energy interval / eV</span>
+E_min = E_V - 0.5;
+E_max = E_C + 0.5 ;
+
+[energies,DOS, occupation] = InitializeEnergyAndDOS(E_min, E_max, E_V, ...
+                                                    E_C,resolution);
+
+DOS_admin = InitializeDOSAdministration(energies);
+
+<span class="comment">% add conduction band, add empty vector for electron occupation</span>
+DOS_admin = AddConductionBandToDOS(DOS_admin,energies,E_C,m_n_eff);
+
+<span class="comment">% add hole band, add empty vector for hole occupation</span>
+DOS_admin = AddValenceBandToDOS(DOS_admin,energies,E_V,m_p_eff);
+
+<span class="comment">% add donor level 50meV below conduction band,</span>
+<span class="comment">% level become positive upon emptying</span>
+DOS_admin  = AddLevelToDOS(DOS_admin,energies,dopant_density,...
+                           E_dopant,dopant_marker);
+
+<span class="comment">%-------------------------------------------------------------------------</span>
+<span class="comment">% (4a) investigate impact of temperature</span>
+<span class="comment">%-------------------------------------------------------------------------</span>
+
+
+<span class="comment">% number of temperatures</span>
+num_entries = length(reference_array);
+
+<span class="comment">% do this for each temperature value</span>
+<span class="keyword">for</span> k=1:num_entries
+
+    <span class="comment">% --------------------------------------------------------------------</span>
+    <span class="comment">%  evaluate intrinsic Fermi level numerically</span>
+    <span class="comment">% --------------------------------------------------------------------</span>
+    <span class="comment">% the following code line combines these three steps:</span>
+    <span class="comment">% (a) cast charge neutrality condition into a form F(E,...) = 0</span>
+    <span class="comment">% (b) function F has to be provided, here chargeNeutralityIntrinsic()</span>
+    <span class="comment">% (c) pass F as function handle fhi, make sure that E is indicated as the</span>
+    <span class="comment">%     argument to be evaluated</span>
+
+    fhi = @(E) chargeNeutralityIntrinsic(E ,E_C,E_V,m_n_eff,m_p_eff,...
+                                        temperature(k));
+    <span class="comment">% (d) employ root-finding algorithm to determine the chemical potential</span>
+
+    [chemical_potential_i(k), num_iter, error] = ...
+        FindRootNestedIntervals(fhi,energies, (E_C + E_V)/2.+0.2,...
+        tolerance, max_RF_iter);
+    <span class="comment">%</span>
+    <span class="comment">% check for division by zeros due to either n or p being zero</span>
+    <span class="comment">% put in limit for T-&gt; 0</span>
+    <span class="keyword">if</span> (error == 0)
+        display([<span class="string">'Found DIV by zero:'</span>,num2str(num_iter),<span class="string">'   '</span>,num2str(error)]);
+        chemical_potential_i(k) = (E_C + E_V)/2.;
+        n_i(k) = 0;
+    <span class="keyword">else</span>
+      n1 = GetDensityInBand(chemical_potential_i(k),E_C,m_n_eff, ...
+                         temperature(k));
+      p1 = GetDensityInBand(chemical_potential_i(k),E_V,m_p_eff, ...
+                         temperature(k));
+      n_i(k) = sqrt(n1*p1);
+    <span class="keyword">endif</span>
+
+    <span class="comment">%</span>
+
+
+
+    <span class="comment">%---------------------------------------------------------------------</span>
+    <span class="comment">% evaluate Fermi level numerically for a non-intrinsic system</span>
+    <span class="comment">%---------------------------------------------------------------------</span>
+
+    <span class="comment">% the following code line combines these three steps:</span>
+    <span class="comment">% (a) cast charge neutrality condition into a form F(E,...) = 0</span>
+    <span class="comment">% (b) function F has to be provided, here F is chargeNeutrality()</span>
+    <span class="comment">% (c) pass F as function handle fh, make sure that E is indicated as the</span>
+    <span class="comment">%     argument to be evaluated</span>
+
+    fh = @(E) chargeNeutrality(E,DOS_admin,m_n_eff,m_p_eff,temperature(k));
+
+    <span class="comment">% (d) employ root-finding algorithm to determine the chemical potential</span>
+
+    [chemical_potential(k), num_iter, error] = ...
+        FindRootNestedIntervals(fh,energies, ...
+        chemical_potential_i(k), tolerance, max_RF_iter);
+
+
+    n(k) = GetDensityInBand(chemical_potential(k), ...
+                                 E_C,m_n_eff, temperature(k));
+
+    p(k) = GetDensityInBand(chemical_potential(k), ...
+                                 E_V,m_p_eff, temperature(k));
+    <span class="comment">% the following determination of the concentration of ionized dopants</span>
+    <span class="comment">% is valid for acceptor-type doping</span>
+    <span class="comment">% Ndop_ionized(k)is a number between zero and one</span>
+    <span class="comment">%                DOS_admin(3) holds required information on dopant state</span>
+
+    Ndop_ionized(k) =     GetDensityInLevel(chemical_potential(k),...
+                         DOS_admin(3),temperature(k))/DOS_admin(3).N;
+    disp(Ndop_ionized(k));
+
+    <span class="comment">% hence for donor-type dopants we need to correct as follows</span>
+    <span class="keyword">if</span> (strcmp(doping_type,<span class="string">'donor'</span>)==1)
+      Ndop_ionized(k) = 1.0 - Ndop_ionized(k);
+    <span class="keyword">endif</span>
+end;</pre>
+
+
+
+<p>prepare for plotting results</p>
+
+<pre class="oct-code">str_dopand_density = num2str_b10(dopant_density);
+
+figure_handle1 = figure(1);
+
+
+    hold on
+
+    <span class="comment">% remember: in the x-axis, reference_array = temperatures</span>
+    plot(reference_array,E_C * ones(size(dopant_density)),...
+         <span class="string">'LineWidth'</span>,1,<span class="string">'Color'</span>,[1 0 0],<span class="string">'DisplayName'</span>,<span class="string">'E_C'</span>);
+    plot(reference_array,chemical_potential_i,<span class="string">'--'</span>,<span class="string">'LineWidth'</span>,1,...
+         <span class="string">'Color'</span>,[1 0 0],<span class="string">'DisplayName'</span>,<span class="string">'E_F_intrinsic'</span>);
+    plot(reference_array(find(chemical_potential &lt; E_C)),...
+        chemical_potential(find(chemical_potential &lt; E_C)),...
+        <span class="string">'LineWidth'</span>,2,<span class="string">'Color'</span>,[1 0 0],<span class="string">'DisplayName'</span>,<span class="string">'mu'</span>);
+
+    <span class="comment">%headline =</span>
+    title({<span class="string">'chemical potential vs temperature'</span>,<span class="string">' '</span>,...
+           [<span class="string">'in '</span>,semicond_label,<span class="string">' at '</span>,dopant_label,<span class="string">' = '</span>,str_dopand_density,<span class="string">' m^3'</span>]});
+    legend(<span class="string">'E_C'</span>,<span class="string">'\mu_i'</span>,<span class="string">'\mu'</span>, <span class="string">'Location'</span> ,<span class="string">'northeastoutside'</span>);
+
+    ylim([0 1.5]);
+    xlabel(<span class="string">'temperature / K'</span>);
+    ylabel(<span class="string">'energy / eV'</span>);
+
+
+figure_handle2 = figure(2);
+
+    hold on
+
+    <span class="comment">% remember: in the x-axis, reference_array = temperatures</span>
+    plot(reference_array, n_i/dopant_density,<span class="string">'.'</span>,<span class="string">'LineWidth'</span>,2,<span class="string">'Color'</span>,...
+         [1 0 0],<span class="string">'DisplayName'</span>,<span class="string">'ni'</span>);
+    plot(reference_array, n/dopant_density,<span class="string">'LineWidth'</span>,2,<span class="string">'Color'</span>,...
+         [1 0 0],<span class="string">'DisplayName'</span>,<span class="string">'n'</span>);
+    plot(reference_array, p/dopant_density,<span class="string">'LineWidth'</span>,2,<span class="string">'Color'</span>,...
+         [0.5 0 0],<span class="string">'DisplayName'</span>,<span class="string">'p'</span>);
+
+    title({<span class="string">'charge density vs temperature'</span>,<span class="string">' '</span>,...
+          [<span class="string">'in '</span>,semicond_label,<span class="string">' at N_D = 10^{21} m^3'</span>]});
+    legend([<span class="string">'n_i/'</span>,dopant_label],[<span class="string">'n/'</span>,dopant_label],[<span class="string">'p/'</span>,dopant_label], <span class="string">'Location'</span> ,<span class="string">'northeastoutside'</span>);
+
+    ylim([0 2.0]);
+    xlabel(<span class="string">'temperature / K'</span>);
+    ylabel([<span class="string">'charge density / '</span>,dopant_label]);
+
+figure_handle3 = figure(3);
+
+
+    <span class="comment">% correct for evalation errors</span>
+    Ndop_ionized(find(Ndop_ionized == 1)) = 0;
+
+    hold on
+    title({<span class="string">'number of ionized dopants vs temperature'</span>,<span class="string">' '</span>,...
+           [<span class="string">'in '</span>,semicond_label,<span class="string">' at '</span>,dopant_label,<span class="string">' = 10^{21} m^3'</span>]});
+
+    <span class="comment">% remember: in the x-axis, reference_array = temperatures</span>
+    plot(reference_array, Ndop_ionized,<span class="string">'LineWidth'</span>,2,<span class="string">'Color'</span>,[1 0 0],...
+         <span class="string">'DisplayName'</span>,semicond_label);
+    legend([dopant_label,<span class="string">'^+/'</span>,dopant_label], <span class="string">'Location'</span> ,<span class="string">'northeastoutside'</span>);
+
+    ylim([0 1.1]);
+    xlabel(<span class="string">'temperature / K'</span>);
+    ylabel([<span class="string">'density of ionized dopants/ '</span>, dopant_label]);</pre>
+	<!--
+<img src="main_densityVsTemperature_lean-1.png" alt="main_densityVsTemperature_lean-1.png"><img src="main_densityVsTemperature_lean-2.png" alt="main_densityVsTemperature_lean-2.png"><img src="main_densityVsTemperature_lean-3.png" alt="main_densityVsTemperature_lean-3.png">-->
+<footer>
+<hr>
+<a href="https://www.octave.org">Published with GNU Octave 5.2.0</a>
+</footer>
+
+
+</body>
+</html>
