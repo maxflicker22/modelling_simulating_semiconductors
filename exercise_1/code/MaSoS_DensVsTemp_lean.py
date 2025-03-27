@@ -14,10 +14,8 @@ March 2024
  and Simulation of Semiconductors'.
 """
 
-"""Test
-"""
 
-
+# %%
 import numpy as np
 import matplotlib.pylab as plt
 from colorsys import rgb_to_hls
@@ -67,6 +65,7 @@ resolution = 1500
 tolerance = 1e-4
 max_RF_iter = 30
 
+
 # ----- script control ------------
 # plot on logarithmic scale
 plot_xlog = False
@@ -74,10 +73,16 @@ plot_ylog = False
 # if plots do not show, toogle this switch to "True"
 prompt_fig_show = False
 
+# Semiconductor material
+# initializue here cause of filename
+#  choose from 'Si', 'Ge', 'GaAs'
+semiconductor_string = 'Si'
+
+
 # filenames for saving plots
-filename_s1 = "chemical_potential_vs_temp"
-filename_s2 = "relative_elec_density_vs_temp"
-filename_s3 = "ionized_doping_density_vs_temp"
+filename_s1 = "figures/chemical_potential_vs_temp" + semiconductor_string
+filename_s2 = "figures/relative_elec_density_vs_temp" + semiconductor_string
+filename_s3 = "figures/ionized_doping_density_vs_temp" +semiconductor_string
 
 ###############################################################################
 ###############################################################################
@@ -126,7 +131,7 @@ chemical_potential_i = np.zeros_like(temperature)
 # Ge and GaAs. Anything else will create a artifitial materials. The properties
 # can be changed in the routine AssignSemiconductor.
 
-Semiconductor = 'Si'
+Semiconductor = semiconductor_string
 EC, EV, m_n_eff, m_p_eff = sf.AssignSemiconductor(Semiconductor)
 
 # EC...conduction band minimum; EV...valence band maximum;
@@ -201,7 +206,7 @@ for k in range(len(temperature)):
     
     Temp = temperature[k]
     
-    fh = lambda E: sf.chargeNeutralityIntrinsic(E ,EC,EV,m_n_eff,m_p_eff,Temp)
+    fh = lambda E: sf.chargeNeutralityIntrinsic(E ,EC, EV, m_n_eff, m_p_eff, Temp)
     
 #    (d) employ root-finding algorithm to determine the chemical potential
 
@@ -284,6 +289,7 @@ fig1 = plt.figure(1)
 line_mu_i = plt.plot(temperature,chemical_potential_i,lw=3,color=col,ls='--',label='$\mu_i$ '+Semiconductor)
 line_mu = plt.plot(temperature,chemical_potential,lw=2,color=col,label='$\mu$ '+Semiconductor)
 line_bandedge = plt.plot(temperature,EC*np.ones(np.shape(temperature)),lw=1,ls='dotted', color=col,label='$E_C$ '+Semiconductor)
+
 
 # Set Labels
 plt.xlabel('Temperature / K')
@@ -376,3 +382,4 @@ if prompt_fig_show:
 
 plt.savefig(filename_s3+".svg")
 plt.savefig(filename_s3+".pdf")
+# %%

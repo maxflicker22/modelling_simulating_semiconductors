@@ -1,0 +1,14 @@
+Exercise _1:
+Task1: 
+-a: Chemisches potential ist mit zusätzlichen donors bei wenig Kelvin höher, weil löcher unten und elektronen oben gleich sein müssen. 
+    Daher muss am anfang das Chemische Potential über dem Energieniveu des Donators und unter  Condaction band sein. Je weiter oben E_donator ist umso weiter oben ist das chemische potential. 
+    Wo müsste es Analytisch sein? ungefähr in der hälfte von E_D und Condaction Band? Bzw. wovon hängt das ab?
+    Je höher E_D liegt umso mehr Kelvin braucht es um gleich dem intrinstischen Chem. potential zu entsprechen.
+    Meine Idee: Wenn Donor Band aus gleich statistisch gleich viele Löcher wie Elektronen hält ist mu = intrinsich mu;
+    Je höher E_D umso mehr Temp braucht es hiere ein gleichgewicht zu erschaffen.
+    wenn m_n_eff >> m_p_eff dann hat das intrinsische chemisches potential über Temper eine negative Steigung
+    im Entgegengesetzten Fall wird die Energie des chem. Potentials übeer Temperatur größer
+    geringere Maße wird leichter bewegt und dadurch verschiebt sich das gleichgewicht.
+
+-b: Wenn man viele Dotiert dann fangen ab bestimmter Anzahl die dotierungen an Energiebänder zu entwickeln
+    wodurch die leicht gebunden Teilchen dann stärker gebunden sind.

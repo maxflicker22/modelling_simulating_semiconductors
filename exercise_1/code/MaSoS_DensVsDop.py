@@ -14,7 +14,7 @@ March 2023
  corresponding MATLAB script for the first exersice of the lecture 'Modeling 
  and Simulation of Semiconductors'.
 """
-
+# %%
 import numpy as np
 import matplotlib.pylab as plt
 import sys # for controlled exit
@@ -74,10 +74,16 @@ plot_ylog = False
 # if plots do not show, toogle this switch to "True"
 prompt_fig_show = False
 
+# Semiconductor material
+# initializue here cause of filename
+#  choose from 'Si', 'Ge', 'GaAs'
+semiconductor_string = 'Si'
+
+
 # filenames for saving plots
-filename_s1 = "chemical_potential_vs_Ndop"
-filename_s2 = "relative_elec_density_vs_Ndop"
-filename_s3 = "ionized_doping_density_vs_Ndop"
+filename_s1 = "figures/chemical_potential_vs_Ndop" + semiconductor_string
+filename_s2 = "figures/relative_elec_density_vs_Ndop" + semiconductor_string
+filename_s3 = "figures/ionized_doping_density_vs_Ndop" + semiconductor_string
 
 ###############################################################################
 ###############################################################################
@@ -125,7 +131,7 @@ chemical_potential_i = np.zeros_like(doping_densities)
 # Ge and GaAs. Anything else will create a artifitial materials. The properties
 # can be changed in the routine AssignSemiconductor.
 
-Semiconductor = 'Si'
+Semiconductor = semiconductor_string
 EC, EV, m_n_eff, m_p_eff = sf.AssignSemiconductor(Semiconductor)
 
 # EC...conduction band minimum; EV...valence band maximum;
@@ -442,3 +448,5 @@ if prompt_fig_show:
 plt.savefig(filename_s3+".svg")
 plt.savefig(filename_s3+".pdf")
     
+
+# %%
