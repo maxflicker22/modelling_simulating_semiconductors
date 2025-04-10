@@ -307,8 +307,8 @@ plt.ylim(0,EC+0.1)
 
 if prompt_fig_show:
     fig1.show()  
-plt.savefig(filename_s1+".svg")
-plt.savefig(filename_s1+".pdf")
+#plt.savefig(filename_s1+".svg")
+#plt.savefig(filename_s1+".pdf")
 
 #------------------------------------------------------------------------------
 
@@ -337,18 +337,18 @@ plt.ylabel('density/' + dopant_label)
 plt.title('Charge Density vs Temperature for ' + Semiconductor + ' ' + dopant_label + ' ' +\
           str(dopant_density) + ' $m^{-3}$')
 
-plt.figtext(0.7, 0.2,
+plt.figtext(0.7, 0.37,
          Semiconductor+' Parameter:\n\n $E_{g}$ = '+str(EC)+' eV\n $m_{n}^{*}$= '+\
          str(m_n_eff)+' $m_{e}$\n $m_{p}^{*}$ = '+str(m_p_eff)+' $m_{e}$',
          bbox={'facecolor':'none', 'alpha':0.3, 'pad':5})
 
 plt.legend()
-plt.ylim(0,2.5)
+plt.ylim(0,1.1)
 
 if prompt_fig_show:
     fig2.show() 
 
-plt.savefig(filename_s2+".svg")
+#plt.savefig(filename_s2+".svg")
 plt.savefig(filename_s2+".pdf")
 #------------------------------------------------------------------------------
 
@@ -380,6 +380,8 @@ plt.ylim(1E-14,1.2)
 if prompt_fig_show:
     fig1.show() 
 
-plt.savefig(filename_s3+".svg")
-plt.savefig(filename_s3+".pdf")
+#plt.savefig(filename_s3+".svg")
+#plt.savefig(filename_s3+".pdf")
 # %%
+
+
