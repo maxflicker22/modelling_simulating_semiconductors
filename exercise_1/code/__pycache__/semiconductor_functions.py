@@ -96,7 +96,7 @@ def AssignSemiconductor(Semiconductor):
     elif Semiconductor == 'GaAs':
         
         m_n_eff = 0.067     # in units of electron mass
-        m_p_eff = 0.45      # in units of electron mass
+        m_p_eff = 0.45      #  units of electron mass
         E_C = E_V + 1.424   # eV
      
     else:        # Artificial Semiconductor

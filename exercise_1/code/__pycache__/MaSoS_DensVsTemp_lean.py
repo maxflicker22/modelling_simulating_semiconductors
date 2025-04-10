@@ -76,13 +76,13 @@ prompt_fig_show = False
 # Semiconductor material
 # initializue here cause of filename
 #  choose from 'Si', 'Ge', 'GaAs'
-semiconductor_string = 'Si'
+semiconductor_string = 'GaAs'
 
 
 # filenames for saving plots
-filename_s1 = "figures/chemical_potential_vs_temp" + semiconductor_string
-filename_s2 = "figures/relative_elec_density_vs_temp" + semiconductor_string
-filename_s3 = "figures/ionized_doping_density_vs_temp" +semiconductor_string
+filename_s1 = "chemical_potential_vs_temp" + semiconductor_string
+filename_s2 = "relative_elec_density_vs_temp" + semiconductor_string
+filename_s3 = "ionized_doping_density_vs_temp" +semiconductor_string
 
 ###############################################################################
 ###############################################################################
@@ -93,7 +93,7 @@ filename_s3 = "figures/ionized_doping_density_vs_temp" +semiconductor_string
 # ... doping type
 doping_type = 'donor'
 # ... doping density
-dopant_density = 1e20   # Concentration of dopants in m^-3
+dopant_density = 1e21   # Concentration of dopants in m^-3
 # ... energy offset to band
 # ... n-doping: requires donors with small offset E_doffset to conduction band
 # ... p-doping: requires acceptors with small offset E_doffset to valence band

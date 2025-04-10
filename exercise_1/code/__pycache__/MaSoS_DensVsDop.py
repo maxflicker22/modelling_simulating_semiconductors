@@ -77,13 +77,13 @@ prompt_fig_show = False
 # Semiconductor material
 # initializue here cause of filename
 #  choose from 'Si', 'Ge', 'GaAs'
-semiconductor_string = 'Si'
+semiconductor_string = 'GaAs'
 
 
 # filenames for saving plots
-filename_s1 = "figures/chemical_potential_vs_Ndop" + semiconductor_string
-filename_s2 = "figures/relative_elec_density_vs_Ndop" + semiconductor_string
-filename_s3 = "figures/ionized_doping_density_vs_Ndop" + semiconductor_string
+filename_s1 = "chemical_potential_vs_Ndop" + semiconductor_string
+filename_s2 = "relative_elec_density_vs_Ndop" + semiconductor_string
+filename_s3 = "ionized_doping_density_vs_Ndop" + semiconductor_string
 
 ###############################################################################
 ###############################################################################
@@ -92,7 +92,7 @@ filename_s3 = "figures/ionized_doping_density_vs_Ndop" + semiconductor_string
 
 # doping
 # ... doping density
-dopant_density = 1e22   # Concentration of dopants in m^-3
+dopant_density = 1e21   # Concentration of dopants in m^-3
 # range of doping densities
 dopmin = 1e15
 dopmax = 1e25
