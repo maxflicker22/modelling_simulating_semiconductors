@@ -77,7 +77,7 @@ prompt_fig_show = False
 # Semiconductor material
 # initializue here cause of filename
 #  choose from 'Si', 'Ge', 'GaAs'
-semiconductor_string = 'GaAs'
+semiconductor_string = 'Ge'
 
 
 # filenames for saving plots
@@ -335,7 +335,7 @@ plt.ylabel('Energy / eV ')
 plt.title('Chemical Potential vs doping density for ' + Semiconductor + ' at $ T= ' + str(temperature) + ' $K')
 
 # Semiconductor Parameter section. If unwanted, comment out
-plt.figtext(0.91, 0.5,
+plt.figtext(0.73, 0.28,
          Semiconductor+' Parameter:\n\n $E_{g}$ = '+str(EC)+' eV\n $m_{n}^{*}$= '+\
          str(m_n_eff)+' $m_{e}$\n $m_{p}^{*}$ = '+str(m_p_eff)+' $m_{e}$',
          bbox={'facecolor':'none', 'alpha':0.3, 'pad':5})
@@ -388,7 +388,7 @@ plt.xlabel('doping density / m$^{-3}$ ')
 plt.ylabel('charge density / $m^{-3}$')
 plt.title('Charge Density vs doping density for ' + Semiconductor + ' at $ T= ' + str(temperature) + ' $K')
 
-plt.figtext(0.91, 0.5,
+plt.figtext(0.59, 0.2,
          Semiconductor+' Parameter:\n\n $E_{g}$ = '+str(EC)+' eV\n $m_{n}^{*}$= '+\
          str(m_n_eff)+' $m_{e}$\n $m_{p}^{*}$ = '+str(m_p_eff)+' $m_{e}$',
          bbox={'facecolor':'none', 'alpha':0.3, 'pad':5})
@@ -435,7 +435,7 @@ plt.ylabel(label_str)
 plt.title('Number of Ionized Dopants vs doping density for ' + Semiconductor + ' at $ T= ' + str(temperature) + ' $K')
 plt.legend()
 
-plt.figtext(0.91, 0.5,
+plt.figtext(0.55, 0.2,
          Semiconductor+' Parameter:\n\n $E_{g}$ = '+str(EC)+' eV\n $m_{n}^{*}$= '+\
          str(m_n_eff)+' $m_{e}$\n $m_{p}^{*}$ = '+str(m_p_eff)+' $m_{e}$',
          bbox={'facecolor':'none', 'alpha':0.3, 'pad':5})

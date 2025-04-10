@@ -297,7 +297,7 @@ plt.ylabel('Energy /eV')
 plt.title('Chemical Potential vs Temperature for ' + Semiconductor + ' ' + dopant_label + ' ' + str(dopant_density) + ' $m^{-3}$')
 
 # Semiconductor Parameter section. If unwanted, comment out
-plt.figtext(0.91, 0.5,
+plt.figtext(0.7, 0.2,
          Semiconductor+' Parameter:\n\n $E_{g}$ = '+str(EC)+' eV\n $m_{n}^{*}$= '+\
          str(m_n_eff)+' $m_{e}$\n $m_{p}^{*}$ = '+str(m_p_eff)+' $m_{e}$',
          bbox={'facecolor':'none', 'alpha':0.3, 'pad':5})
@@ -337,7 +337,7 @@ plt.ylabel('density/' + dopant_label)
 plt.title('Charge Density vs Temperature for ' + Semiconductor + ' ' + dopant_label + ' ' +\
           str(dopant_density) + ' $m^{-3}$')
 
-plt.figtext(0.91, 0.5,
+plt.figtext(0.7, 0.2,
          Semiconductor+' Parameter:\n\n $E_{g}$ = '+str(EC)+' eV\n $m_{n}^{*}$= '+\
          str(m_n_eff)+' $m_{e}$\n $m_{p}^{*}$ = '+str(m_p_eff)+' $m_{e}$',
          bbox={'facecolor':'none', 'alpha':0.3, 'pad':5})
@@ -370,7 +370,7 @@ plt.title('Number of Ionized Dopants vs Temperature for ' + Semiconductor +\
            ' ' + dopant_label + ' ' + str(dopant_density) + ' $m^{-3}$')
 plt.legend()
 
-plt.figtext(0.91, 0.5,
+plt.figtext(0.7, 0.2,
          Semiconductor+' Parameter:\n\n $E_{g}$ = '+str(EC)+' eV\n $m_{n}^{*}$= '+\
          str(m_n_eff)+' $m_{e}$\n $m_{p}^{*}$ = '+str(m_p_eff)+' $m_{e}$',
          bbox={'facecolor':'none', 'alpha':0.3, 'pad':5})
