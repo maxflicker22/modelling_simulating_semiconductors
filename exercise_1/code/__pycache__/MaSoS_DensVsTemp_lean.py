@@ -106,7 +106,7 @@ E_doffset = 0.2
 
 # temperature
 Tmin = 10      # Starting temperature in K
-Tmax = 800       # End temperature in K
+Tmax = 1000       # End temperature in K
 N_steps = round((Tmax-Tmin)/2.0)   # Number of steps between Tmin and Tmax 
 
 temperature = np.linspace(Tmin,Tmax,N_steps)    # Desired Temperature Range
@@ -349,7 +349,7 @@ if prompt_fig_show:
     fig2.show() 
 
 #plt.savefig(filename_s2+".svg")
-plt.savefig(filename_s2+".pdf")
+#plt.savefig(filename_s2+".pdf")
 #------------------------------------------------------------------------------
 
 #------------------------------------------------------------------------------
