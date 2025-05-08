@@ -65,7 +65,7 @@ for experiment in zip(trap_dens, E_toffset):
             DOS_Admin = sf.AddGaussToDOS(DOS_Admin, energies, trap_dens, E_trap, sigma, 'P')
 
         fh = lambda E: sf.chargeNeutralityIntrinsic(E, EC, EV, m_n_eff, m_p_eff, T)
-        chemical_potential_i[k], _, _ = sf.FindRootNestedIntervals(fh, energies, tolerance, max_RF_iter)
+        chemical_potential_i[k], _, _ = sf.FindRootNestedIntervals(fh, energies, E_guess, tolerance, max_RF_iter)
 
         n_t = sf.GetDensityInBand(chemical_potential_i[k],EC,m_n_eff, T)
         p_t = sf.GetDensityInBand(chemical_potential_i[k],EV,m_p_eff, T)
@@ -78,7 +78,7 @@ for experiment in zip(trap_dens, E_toffset):
         p[k] = sf.GetDensityInBand(chemical_potential[k],EV,m_p_eff, T)
 
         if trap_dens > 0:
-            trapden[k] = sf.GetDensityInBand(chemical_potential[k], DOS_Admin.Label[3], DOS_Admin.N[3], DOS_Admin.E_ref[3], DOS_Admin.Param[3], T)
+            trapden[k] = sf.GetDensityInGauss(chemical_potential[k], DOS_Admin.Label[3], DOS_Admin.N[3], DOS_Admin.E_ref[3], DOS_Admin.Param[3], T)
 
         Ndop_ionized[k] = sf.GetDensityInLevel(chemical_potential[k], DOS_Admin.E_ref[2],DOS_Admin.N[2],T)/DOS_Admin.N[2]
         
@@ -92,4 +92,47 @@ for experiment in zip(trap_dens, E_toffset):
     
     col = 'blue'
 
+    fig, (ax1, ax2) = plt.subplots(1,2, figsize=(10,6), sharex=True)
+
+    # Plot 1: Chemical potential
+    ax1.semilogx(doping_densities, chemical_potential_i, label='Intrinsic Chemical Potential', linestyle='-.', color='k')
+    ax1.semilogx(doping_densities, chemical_potential, label='Chemical Potential', color='k')
+    ax1.semilogx(doping_densities, EV*np.ones_like(doping_densities), label='Valence / Conduction Band', color='grey')
+    ax1.semilogx(doping_densities, EC*np.ones_like(doping_densities), color='grey')
+
+    ax1.set_xlim(dopmin, dopmax)
+    ax1.set_xscale('log')
+    ax1.set_xlabel('Doping Density (m$^{-3}$)')
+    ax1.set_ylabel('Chemical Potential (eV)')
+    ax1.legend(loc='upper right')
+    ax1.grid(False)
+
+    # Plot 2: Electron and hole densities
+    ax2.plot(doping_densities, n_i, label=r'n$_i$ (Intrinsic)', linestyle='--', color='blue')
+    ax2.plot(doping_densities, n, label=r'$n$ (Electrons)', color='blue')
+    ax2.plot(doping_densities, p, label=r'$p$ (Holes)', color='red')
     
+    ax2.set_xlim(dopmin, dopmax)
+    ax2.set_xscale('log')
+    ax2.set_yscale('log')
+    ax2.set_xlabel('Doping Density (m$^{-3}$)')
+    ax2.set_ylabel('Carrier Density (m$^{-3}$)')
+    ax2.legend(loc='center right')
+    ax2.grid(False)
+
+    fig2, ax3 = plt.subplots()
+    ax3.plot(doping_densities, Ndop_ionized, label=r'$N_A^-/N_A$ Ionized dopants', color='red')
+    if trap_dens > 0:
+        ax3.loglog(doping_densities, trap_ionized, label=r'$N_T^-/N_T$ Ionized traps', color='green')
+    ax3.set_xlim(dopmin, dopmax)
+    ax3.set_xscale('log')
+    #ax2.set_yscale('log')
+    ax3.set_xlabel('Doping Density (m$^{-3}$)')
+    ax3.set_ylabel(r'$N_i^-/N_i$')
+    ax3.legend(loc='center left')
+    ax3.grid(False)
+
+    plt.tight_layout()
+    plt.show()
+
+    #%%
