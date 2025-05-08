@@ -98,7 +98,7 @@ dopmin = 1e15
 dopmax = 1e25
 N_steps = 500   # Number of steps between dopmin and dopmax 
 # ... energy offset to band
-E_doffset = 0.1
+E_doffset = 0.15
 # ... doping type
 doping_type = 'acceptor'
 
@@ -156,9 +156,9 @@ trap_density = 1E22   # Concentration of traps in m^-3  1e22
 # ... energy offset with respect to mid gap
 # ... offset > 0 : above mid gap
 # ... offset < 0 : below mid gap
-E_toffset = -0.2#0.15 -(EC-EV)/2.0
+E_toffset = -0.1#0.15 -(EC-EV)/2.0
 # ... width of associated Gaussian
-trap_sigma = 0.1 # in eV
+trap_sigma = 0.05 # in eV
 # ... trap type
 trap_type = 'acceptor'
     

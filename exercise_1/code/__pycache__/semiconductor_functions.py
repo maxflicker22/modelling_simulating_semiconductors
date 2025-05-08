@@ -100,10 +100,9 @@ def AssignSemiconductor(Semiconductor):
         E_C = E_V + 1.424   # eV
      
     else:        # Artificial Semiconductor
-        
-        m_n_eff = 0.00001      # in units of electron mass
-        m_p_eff = 5.5      # in units of electron mass
-        E_C = E_V + 1.0   # eV
+        m_n_eff = 1.     # in units of electron mass
+        m_p_eff = 1.    # in units of electron mass
+        E_C = E_V + 0.4 # eV
 
     return E_C, E_V, m_n_eff, m_p_eff
 
