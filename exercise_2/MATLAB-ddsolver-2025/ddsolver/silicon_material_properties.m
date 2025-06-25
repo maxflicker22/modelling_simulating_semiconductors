@@ -78,8 +78,8 @@ function [device_struc] = silicon_material_properties(T0)
     device_struc.vsatn        = inf;            % ref. value: 1.1e5;
     device_struc.vsatp        = inf;            % ref. value: 9.5e4;
 
-    device_struc.tp           = inf;            % ref. value: 1e-6;
-    device_struc.tn           = inf;            % ref. value: 1e-6;
+    device_struc.tp           = 1e-6;            % ref. value: 1e-6;
+    device_struc.tn           = 1e-6;            % ref. value: 1e-6;
 
     device_struc.Cn           = 0;              % ref. value: 2.8e-31*1e-12; 
     device_struc.Cp           = 0;              % ref. value: 9.9e-32*1e-12;   

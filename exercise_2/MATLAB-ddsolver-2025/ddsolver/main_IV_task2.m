@@ -1,3 +1,4 @@
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %     Solving 1D Poisson + Drift Diffusion semiconductor eqns using
 %                    Gummel algorithm
@@ -12,7 +13,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clear all;
-%close all;
+close all;
 
 %%----- SETUP SIMULATION -----------------------------------------------------
 
@@ -54,22 +55,16 @@ itercontrol.pmaxit = 1000;
 % if FALSE the thermal equilibrium is chosen as initial guess
 % we will stay, for the time being with the thermal equilibrium as initial guess
 itercontrol.prev_guess = false;
-
 % set external voltage here!
 voltage_step = 0.01;      %[V] 
 voltage_start = -0.2;     %[V]
-voltage_end = 1.2; %[V]
+voltage_end = 1.0; %[V]
 
-% Calc distribution for 0, and 0.7 V
-for V = [0]
+number_voltages = floor((voltage_end-voltage_start)/voltage_step)+1;
+
+for acceptor_density = [5e23, 1e23, 1e22, 1e21, 1e20]
     
-    voltage_start = V
-    voltage_end = V
-    voltage_step = 0
-    
-    number_voltages = floor((voltage_end-voltage_start)/voltage_step)+1;
-
-
+    device.doping.NA = acceptor_density
     % this array stores all voltages for which the currents will be calculated
     voltage_ramp = linspace(voltage_start,voltage_end, number_voltages);
     find_zero_voltage = find(voltage_ramp == 0);
@@ -97,78 +92,15 @@ for V = [0]
 
         disp(['Calculate j at voltage V=',num2str(voltage_ramp(bias_voltage_num)),' V']);
 
-        [current_ramp(bias_voltage_num),profile, it, res] = current4voltage(voltage_ramp(bias_voltage_num),T0,device,itercontrol);
-
+        [current_ramp(bias_voltage_num), profile, it, res] = current4voltage(voltage_ramp(bias_voltage_num),T0,device,itercontrol);
     end
 
-    figure(1)
-    scale = 1;
-    grid on
-    plot2micron = 1E6; % scale from meter to micrometer
-    set(1,'Position', [13 500 435 320]);
-    title({'Energy and Potential Profiles @ T= ',num2str(T0), ' V=', num2str(V),' V'}); 
-    hold on;
-    plot(device.mesh.x*plot2micron, profile.psi, 'LineWidth',2,...
-         'Color', [0.5*scale 0.2*scale 0]); 
-    plot(device.mesh.x*plot2micron, profile.EFn,  'LineWidth',2,'Color',...
-          [0 0 scale]);
-    plot(device.mesh.x*plot2micron, profile.EFp, 'LineWidth',2,'Color',...
-         [scale 0 0]);
-    plot(device.mesh.x*plot2micron, profile.Ec, 'LineWidth',1,'Color',...
-          [0 0 scale]);
-    plot(device.mesh.x*plot2micron, profile.Ev, 'LineWidth',1,'Color',...
-          [scale 0 0]);
-    xlabel('Position / {\mu}m');
-    ylabel('Potential or Energy'); 
-    legend(['{\Psi} /V'],['{E_{F,n}} /eV'],['{E_{F,p}} /eV'],...
-           ['{E_{C}} /eV'],['{E_{V}} /eV'])
-    my_legend = legend;
-    my_legend.Location = 'northwest';    
-    axis tight;
-    hold off;
-
-    figure(2)
-    scale = 1;
-    grid on
-    plot2micron = 1E6; % scale from meter to micrometer
-    set(2,'Position', [13 100 435 320]);
-    title({'Charge Density Profiles @ T= ',num2str(T0),' V=', num2str(V),' V'}); 
-    hold on;
-    semilogy(device.mesh.x*plot2micron, profile.n, 'LineWidth',2,...
-         'Color', [0 0 1]); 
-    xlabel('Position / {\mu}m');
-    ylabel('Density / {m^{-3}} '); 
-    legend('n - Electron Density');
-    my_legend = legend;
-    my_legend.Location = 'northwest';    
-    axis tight;
-    hold off;
-
-    figure(3)
-    scale = 1;
-    grid on
-    hold on
-    plot2micron = 1E6; % scale from meter to micrometer
-    set(3,'Position', [500 100 435 320]);
-    title({'Charge Density Profiles @ T= ',num2str(T0), ' V=', num2str(V),' V'}); 
-    semilogy(device.mesh.x*plot2micron, profile.p,  'LineWidth',2,'Color',...
-          [1 0 0]);
-    xlabel('Position / {\mu}m');
-    ylabel('Density / {m^{-3}} '); 
-    legend('p - Hole Density');
-    my_legend = legend;
-    my_legend.Location = 'northwest';    
-    axis tight;
-    hold off
-
-    continue
     figure(4)
     set(4,'Position', [1000 500 435 320]);
-    title({'Current Density vs Voltage @ T= ',num2str(T0),' K'}); 
     hold on;
     grid on
-    plot(voltage_ramp, abs(current_ramp), 'LineWidth', 2)
-    legend ('J_{tot}' );
+    plot(voltage_ramp, abs(current_ramp), 'LineWidth', 1.5)
+    legend ('N_{A} = 5.0\cdot10^{17} cm^{-1}', '10^{17} cm^{-1}', '10^{16} cm^{-1}', '10^{15} cm^{-1}', '10^{14} cm^{-1}');
     xlabel('Voltage  / V');
     ylabel('Current Density  / A{m^{-2}} '); 
     axis tight;
@@ -176,16 +108,15 @@ for V = [0]
 
     figure(5)
     set(5,'Position', [500 500 435 320]);
-    title({'Current Density vs Voltage @ T= ',num2str(T0),' K'}); 
     hold on;
     grid on
-    plot(voltage_ramp, abs(current_ramp),'LineWidth',3);
-    scatter(voltage_ramp, abs(current_ramp));
-    legend ('J_{tot}' );
+    plot(voltage_ramp, abs(current_ramp),'LineWidth', 1.5);
+    legend ('N_{A} = 5.0\cdot10^{17} cm^{-1}', '10^{17} cm^{-1}', '10^{16} cm^{-1}', '10^{15} cm^{-1}', '10^{14} cm^{-1}');
+    %scatter(voltage_ramp, abs(current_ramp));
     xlabel('Voltage  / V');
     ylabel('Current Density  / A{m^{-2}} '); 
     %this plots the current on a logarithmic scale
     set(gca,'yscale','log');
     hold off;
-    
 end
+
